@@ -46,17 +46,13 @@ end
 
 function get_default_parameters()
   scaling_param = AlgorithmicParameter(true, BinaryRange(), "scaling")
-  kc_param = AlgorithmicParameter(-1, IntegerRange(-1, 10), "kc")
   presolve_param = AlgorithmicParameter(true, BinaryRange(), "presolve")
-  atol_min_param = AlgorithmicParameter(1.0e-10, RealInterval(1.0e-10, 1.0e-7), "atol_min")
   ρ0_param = AlgorithmicParameter(sqrt(eps()) * 1e5, RealInterval(0.0, 1.0), "ρ0")
   δ0_param = AlgorithmicParameter(sqrt(eps()) * 1e5, RealInterval(0.0, 1.0), "δ0")
 
   return Dict{String, AlgorithmicParameter}(
     "scaling" => scaling_param,
-    "kc" => kc_param,
     "presolve" => presolve_param,
-    "atol_min" => atol_min_param,
     "ρ0" => ρ0_param,
     "δ0" => δ0_param,
     "memory" => AlgorithmicParameter(20, IntegerRange(15, 25), "memory")
@@ -92,18 +88,10 @@ end
 
 function ripqp(QM0::QuadraticModel{T0}, solver::RipQPSolver{T0, Int};kwargs...) where {T0 <: Real}
   params = solver.parameters
-  solver_params = K2KrylovParams(:L, :minres, :Identity,
-    true, false,
-    1.0e-4, 1.0e-4, 
-    default(params["atol_min"]), 1.0e-10,
-    default(params["ρ0"]), default(params["δ0"]),
-    1e2 * sqrt(eps()), 1e2 * sqrt(eps()),
-    default(params["memory"])
-    )
+  solver_params = K2LDLParams(;ρ0=default(params["ρ0"]), δ0 = default(params["δ0"]))
   solver.iconf = InputConfig(;
-  scaling=default(params["scaling"]),
-  kc=default(params["kc"]),
-  presolve=default(params["presolve"]),
+    scaling=default(params["scaling"]),
+    presolve=default(params["presolve"]),
     sp=solver_params
   )
   return ripqp(QM0;iconf=solver.iconf, itol=solver.itol, kwargs...)
