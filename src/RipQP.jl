@@ -49,7 +49,7 @@ You can also use `ripqp` to solve a [LLSModel](https://juliasmoothoptimizers.git
 """
 function ripqp(
   QM0::QuadraticModel{T0};
-  iconf::InputConfig{Int} = InputConfig(;scaling=true, presolve=true, sp=K2LDLParams(;ρ0=0.00049, δ0=0.00549)),
+  iconf::InputConfig{Int} = InputConfig(;scaling=false, presolve=true, sp=K2LDLParams(;ρ0=0.066534, δ0=0.02649)),
   itol::InputTol{T0, Int} = InputTol(T0),
   display::Bool = true,
 ) where {T0 <: Real}
