@@ -3,10 +3,10 @@ using Distributed
 using QPSReader
 using Logging
 using NamedTupleTools
-# using QuadraticModels
+using SolverTuning
 
 # 1. Launch workers
-# init_workers(; exec_flags="--project=$(@__DIR__)")
+init_workers(; exec_flags="--project=$(@__DIR__)")
 
 # 2. make modules available to all workers:
 @everywhere begin
@@ -87,6 +87,6 @@ bbmodel = BBModel(x, solver_func, aux_func, problems;lvar=lvar, uvar=uvar)
 best_params, param_opt_problem = solve_bb_model(bbmodel;lb_choice=:C,
 display_all_eval = true,
 # max_time = 300,
-# max_bb_eval =600,
+# max_bb_eval =2,
 display_stats = ["BBE", "SOL", "CONS_H", "TIME", "OBJ"],
 )
