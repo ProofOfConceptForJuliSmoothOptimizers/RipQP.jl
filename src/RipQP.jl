@@ -16,7 +16,7 @@ function __init__()
   @require CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba" include("gpu_utils.jl")
 end
 
-export ripqp
+export ripqp, RipQPSolver, default_parameters
 
 include("types_definition.jl")
 include("iterations/iterations.jl")
@@ -28,6 +28,14 @@ include("multi_precision.jl")
 include("utils.jl")
 
 const to = TimerOutput()
+
+function default_parameters(T::DataType)
+  return (
+    r=Float64(0.999),
+    γ=Float64(0.05),
+    kc=0
+  )
+end 
 
 """
     stats = ripqp(QM :: QuadraticModel{T0};
@@ -78,6 +86,11 @@ You can also use `ripqp` to solve a [LLSModel](https://juliasmoothoptimizers.git
                   sp = (mode == :mono) ? K2LDLParams{T0}() : K2LDLParams{Timulti}(), 
                   kwargs...) where {T0 <: Real}
 """
+function ripqp(QM0::QuadraticModel{T0}, params::NamedTuple;kwargs...) where {T0 <: Real}
+  params = merge(params, default_parameters(T0))
+  return ripqp(QM0;solve_method=IPF(r=params.r, γ=params.γ), kc=params.kc, kwargs...)
+end
+
 function ripqp(
   QM0::QuadraticModel{T0};
   itol::InputTol{T0, Int} = InputTol(T0),
